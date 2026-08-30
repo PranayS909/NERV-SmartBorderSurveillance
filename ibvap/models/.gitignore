@@ -1,5 +1,3 @@
 *.pth
-*.pt
-*.onnx
 *.bin
 !README.md
