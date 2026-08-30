@@ -21,3 +21,7 @@ demo/live-run/
 demo/real-video*/
 *.log
 .DS_Store
+venv/
+.env
+__pycache__/
+*.pyc
