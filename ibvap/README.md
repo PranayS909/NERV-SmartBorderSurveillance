@@ -83,6 +83,33 @@ It deliberately sends one wrong OCR reading (`MH12A81234`) across two camera
 tracks. Consensus resolves `MH12AB1234`, retains the incorrect raw candidate, and
 shows the supporting frames for character `B`.
 
+## Smartphone CCTV: Motion-Gated AI Sleep Mode
+
+PRAMAAN X can accept a smartphone RTSP/HTTP stream, perform a very cheap motion
+check, and wake the Face/ANPR models only when useful visual activity is present.
+It also runs a periodic safety scan while sleeping so slow movement is not trusted
+to motion gating alone. This standalone demo does not require P1/P2 tracking.
+
+Fast gate-only rehearsal using a recorded phone video:
+
+```bash
+PYTHONPATH=. .venv/bin/python scripts/demo_smartphone_ai_sleep.py /path/to/video.mp4 \
+  --models none --max-frames 300
+```
+
+Live smartphone stream with the real Person 3 models:
+
+```bash
+PYTHONPATH=. .venv/bin/python scripts/demo_smartphone_ai_sleep.py \
+  "http://PHONE_IP:PORT/video" --models both --display
+```
+
+The default 3% motion threshold is tuned to ignore mild smartphone compression
+noise. Use `--motion-ratio 0.02` for a fixed tripod or `0.04`–`0.06` when the
+phone mount vibrates. The periodic safeguard defaults to one full scan every five
+seconds. The output contains an annotated MP4 and JSON report with measured
+inference reduction; it does not claim unmeasured energy savings.
+
 ## Enable the ready-made models
 
 Python 3.11 or 3.12 is recommended. The first real run downloads model weights, so

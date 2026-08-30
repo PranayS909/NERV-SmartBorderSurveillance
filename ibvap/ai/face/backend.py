@@ -47,7 +47,14 @@ class InsightFaceBackend:
 
         selected_providers = providers or ["CPUExecutionProvider"]
         self.model_name = f"insightface/{model_pack}"
-        self._app = FaceAnalysis(name=model_pack, root=model_root, providers=selected_providers)
+        # Face recognition needs only detection + embeddings. Loading landmark,
+        # age and gender networks wastes startup time and memory in a live demo.
+        self._app = FaceAnalysis(
+            name=model_pack,
+            root=model_root,
+            providers=selected_providers,
+            allowed_modules=["detection", "recognition"],
+        )
         ctx_id = 0 if any("CUDA" in provider or "CoreML" in provider for provider in selected_providers) else -1
         self._app.prepare(ctx_id=ctx_id, det_size=detection_size)
 
