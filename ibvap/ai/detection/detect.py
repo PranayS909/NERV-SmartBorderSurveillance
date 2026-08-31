@@ -8,13 +8,17 @@ from ultralytics import YOLO
 # CONFIG & MODEL LOADING
 # ----------------------------------------------------------------------
 CAMERA_ID = "BOP-01"
-VIDEO_SOURCE = 1
 
-# Paths (using raw strings r"..." to prevent backslash escaping errors)
-ENTITY_MODEL_PATH = r"\ibvap\models\detection\entity.pt"
-WEAPON_MODEL_PATH = r"\ibvap\models\detection\weapons.pt"
+# Replace with the exact IP and Port shown in your IP Webcam app
+# Standard IP Webcam stream endpoint is "/video"
+IP_WEBCAM_URL = "http://192.168.1.3:4747/video"
+VIDEO_SOURCE = IP_WEBCAM_URL
 
-# Load models (entity_model handles both person and vehicles in 1 forward pass)
+# Paths
+ENTITY_MODEL_PATH = r"D:\Engineering_Projects\NERV-SmartBorderSurveillance\ibvap\models\detection\entity.pt"
+WEAPON_MODEL_PATH = r"D:\Engineering_Projects\NERV-SmartBorderSurveillance\ibvap\models\detection\weapons.pt"
+
+# Load models
 entity_model = YOLO(ENTITY_MODEL_PATH)
 weapon_model = YOLO(WEAPON_MODEL_PATH)
 
@@ -62,14 +66,21 @@ def build_event_json(event_num, event_type, entity_type, entity_id, cls_name, co
 # MAIN INFERENCE LOOP
 # ----------------------------------------------------------------------
 cap = cv2.VideoCapture(VIDEO_SOURCE)
+
+if not cap.isOpened():
+    print(f"Error: Could not open IP Webcam stream at '{VIDEO_SOURCE}'.")
+    print("Check that your phone and PC are on the same Wi-Fi network and the URL is correct.")
+    exit(1)
+
 log_file = open(EVENTS_LOG_PATH, "a") if SAVE_EVENTS_LOG else None
 
-print("Starting Inference Engine with Spec JSON Output... Press 'q' to exit.")
+print(f"Starting Inference Engine connected to IP Webcam ({VIDEO_SOURCE})... Press 'q' to exit.")
 
 try:
     while cap.isOpened():
         ret, frame = cap.read()
         if not ret:
+            print("Failed to grab frame from stream. Reconnecting or ending stream...")
             break
 
         # 1. Run inference passes
