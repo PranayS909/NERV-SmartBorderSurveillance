@@ -64,6 +64,29 @@ def _get_weapon_model():
     return _YOLO_WEAPON
 
 
+_FACE_BACKEND = None
+_WATCHLIST_STORE = None
+
+
+def _get_face_system():
+    """Lazy loader for InsightFace buffalo_l backend and local WatchlistStore."""
+    global _FACE_BACKEND, _WATCHLIST_STORE
+    if _FACE_BACKEND is None:
+        try:
+            from ai.face.backend import InsightFaceBackend
+            from ai.face.watchlist import WatchlistStore
+            model_root = Path("models/insightface/.insightface")
+            if model_root.exists():
+                _FACE_BACKEND = InsightFaceBackend(model_pack="buffalo_l", model_root=str(model_root))
+                wl_path = Path("demo/watchlist/watchlist.json")
+                _WATCHLIST_STORE = WatchlistStore(wl_path, _FACE_BACKEND.model_name)
+                logger.info("InsightFace & Watchlist system loaded (%d subjects enrolled)", len(_WATCHLIST_STORE.entries))
+        except Exception as exc:
+            logger.debug("InsightFace not loaded: %s", exc)
+    return _FACE_BACKEND, _WATCHLIST_STORE
+
+
+
 # ─────────────────────────────────────────────────────────────────────────────
 # Detection helpers
 # ─────────────────────────────────────────────────────────────────────────────
@@ -392,6 +415,38 @@ def process_frame(camera_id: str, frame: np.ndarray, frame_id: int) -> Tuple[np.
             )
             events.append(ev)
 
+        # ── Face Watchlist Identification for persons ───────────────────────────
+        if cls == "person" and (frame_id % 6 == 0):
+            face_backend, watchlist = _get_face_system()
+            if face_backend is not None and watchlist is not None and len(watchlist.entries) > 0:
+                px1, py1, px2, py2 = [int(v) for v in bbox]
+                h_end = min(frame.shape[0], py1 + int((py2 - py1) * 0.45))
+                head_crop = frame[max(0, py1):h_end, max(0, px1):min(frame.shape[1], px2)]
+                if head_crop.size > 0 and head_crop.shape[0] >= 32 and head_crop.shape[1] >= 32:
+                    try:
+                        detected_faces = face_backend.detect(head_crop)
+                        for f in detected_faces:
+                            match = watchlist.match(f.embedding, possible_threshold=0.40, match_threshold=0.50, ambiguity_margin=0.04)
+                            if match.status.value in ("MATCH_CANDIDATE", "POSSIBLE_MATCH"):
+                                if _should_emit(camera_id, "watchlist_match"):
+                                    ev = _build_event(
+                                        "watchlist_match", camera_id, "HIGH",
+                                        match.similarity, bbox,
+                                        track_id=tid,
+                                        entity_id=match.person_id,
+                                        entity_type="person",
+                                        metadata={
+                                            "subject_name": match.display_name,
+                                            "person_id": match.person_id,
+                                            "similarity": round(float(match.similarity), 3),
+                                            "status": match.status.value,
+                                            "frame_id": frame_id,
+                                        }
+                                    )
+                                    events.append(ev)
+                    except Exception as f_err:
+                        logger.debug("Face match error: %s", f_err)
+
         # Vehicle detected event
         if cls in VEHICLE_CLASSES and _should_emit(camera_id, "vehicle_detected"):
             ev = _build_event(
@@ -400,6 +455,7 @@ def process_frame(camera_id: str, frame: np.ndarray, frame_id: int) -> Tuple[np.
                 metadata={"vehicle_class": cls, "frame_id": frame_id}
             )
             events.append(ev)
+
 
     # ── Weapon / armed person overlap ─────────────────────────────────────
     for wpn in weapon_detections:

@@ -16,14 +16,14 @@
   "CAM-003": {
     "name": "Perimeter Fence North",
     "description": "Suspicious object / armed threat detection",
-    "sample_video": "demo/videos/suspicious_object.mp4",
+    "sample_video": "D:\\Engineering_Projects\\NERV-SmartBorderSurveillance\\sample\\street.mp4",
     "sample_scenario": "suspicious_object",
     "phone_stream_url": ""
   },
   "CAM-004": {
     "name": "Night Surveillance Post",
     "description": "Low-light / night movement detection",
-    "sample_video": "demo/videos/night.mp4",
+    "sample_video": "D:\\Engineering_Projects\\NERV-SmartBorderSurveillance\\sample\\test_face.mp4",
     "sample_scenario": "night",
     "phone_stream_url": ""
   },
