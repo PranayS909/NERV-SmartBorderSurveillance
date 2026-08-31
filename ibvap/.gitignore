@@ -5,8 +5,10 @@ __pycache__/
 .coverage
 htmlcov/
 models/*.onnx
+!models/transreid_vit_base.onnx
 models/*.pth
 models/*.pt
+!models/yolov8n.pt
 models/*.bin
 models/cache/
 models/insightface/
@@ -21,12 +23,10 @@ demo/live-run/
 demo/real-video*/
 *.log
 .DS_Store
-
 venv/
 .env
 __pycache__/
 *.pyc
-
 # Logs
 logs
 *.log
@@ -35,12 +35,10 @@ yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
-
 node_modules
 dist
 dist-ssr
 *.local
-
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
