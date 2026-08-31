@@ -7,6 +7,8 @@ from sqlalchemy import (
     ForeignKey
 )
 
+from sqlalchemy.sql import func
+
 from backend.database import Base
 
 
@@ -43,7 +45,8 @@ class Alert(Base):
     )
 
     created_at = Column(
-        DateTime
+        DateTime,
+        server_default=func.now()
     )
 
     acknowledged_at = Column(

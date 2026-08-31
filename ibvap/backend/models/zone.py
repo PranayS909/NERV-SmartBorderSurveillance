@@ -7,6 +7,8 @@ from sqlalchemy import (
     JSON
 )
 
+from sqlalchemy.sql import func
+
 from backend.database import Base
 
 
@@ -48,4 +50,7 @@ class Zone(Base):
         default=True
     )
 
-    created_at = Column(DateTime)
+    created_at = Column(
+        DateTime,
+        server_default=func.now()
+    )

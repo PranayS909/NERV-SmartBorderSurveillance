@@ -1,99 +1,65 @@
-// Demo scenario data, modeled directly on the 8-Day MVP spec (Section 9).
-// Replace with live API/WebSocket data once the backend is wired up —
-// see src/hooks/useEventStream.js for the single place that would change.
+// frontend/src/data/scenario.js
+// Static seed data matching real backend camera IDs (CAM-001..CAM-005).
+// Live REST data is fetched and merged by useAPIData hook.
 
 export const CAMERAS = [
   {
-    camera_id: 'BOP-01',
-    name: 'Border outpost camera 01',
-    location: 'BOP-01',
+    camera_id: 'CAM-001',
+    name: 'BOP Main Gate',
+    location: 'Border Outpost Alpha',
     lat: 28.6139,
-    lng: 77.209,
+    lng: 77.2090,
   },
   {
-    camera_id: 'CHECK-01',
-    name: 'Checkpost camera 01',
-    location: 'CHECK-01',
+    camera_id: 'CAM-002',
+    name: 'Checkpost Alpha',
+    location: 'Checkpost Sector 1',
     lat: 28.6205,
     lng: 77.2165,
   },
+  {
+    camera_id: 'CAM-003',
+    name: 'Perimeter Fence North',
+    location: 'Northern Perimeter',
+    lat: 28.6250,
+    lng: 77.2100,
+  },
+  {
+    camera_id: 'CAM-004',
+    name: 'Night Surveillance Post',
+    location: 'Observation Post Delta',
+    lat: 28.6180,
+    lng: 77.2040,
+  },
+  {
+    camera_id: 'CAM-005',
+    name: 'Secondary Transit Gate',
+    location: 'Transit Sector 2',
+    lat: 28.6110,
+    lng: 77.2150,
+  },
 ];
 
-// Restricted zone polygon, associated with BOP-01 (ZONE-01)
+// Default zone for demo
 export const ZONE = {
   zone_id: 'ZONE-01',
-  zone_name: 'Restricted area',
-  camera_id: 'BOP-01',
+  zone_name: 'Restricted Perimeter Area',
+  camera_id: 'CAM-001',
   severity: 'HIGH',
   polygon: [
     [28.6148, 77.2078],
     [28.6148, 77.2102],
-    [28.6128, 77.2102],
-    [28.6128, 77.2078],
+    [28.6130, 77.2102],
+    [28.6130, 77.2078],
   ],
 };
 
-// Scripted global track for G-017, matching the spec's timeline exactly.
-export const SCENARIO_EVENTS = [
-  {
-    event_id: 'EVT-000121',
-    event_type: 'person_detected',
-    timestamp: '20:31',
-    camera_id: 'BOP-01',
-    entity: { entity_id: 'G-017', entity_type: 'person' },
-    severity: 'LOW',
-    label: 'Person detected',
-  },
-  {
-    event_id: 'EVT-000122',
-    event_type: 'intrusion',
-    timestamp: '20:32',
-    camera_id: 'BOP-01',
-    entity: { entity_id: 'G-017', entity_type: 'person' },
-    severity: 'HIGH',
-    zone: ZONE,
-    label: 'Restricted zone intrusion',
-  },
-  {
-    event_id: 'EVT-000123',
-    event_type: 'watchlist_match',
-    timestamp: '20:33',
-    camera_id: 'BOP-01',
-    entity: { entity_id: 'G-017', entity_type: 'person' },
-    severity: 'HIGH',
-    label: 'Watchlist match — pending verification',
-  },
-  {
-    event_id: 'EVT-000124',
-    event_type: 'vehicle_person_association',
-    timestamp: '20:34',
-    camera_id: 'BOP-01',
-    entity: { entity_id: 'G-017', entity_type: 'person' },
-    severity: 'MEDIUM',
-    label: 'Vehicle MH04AB1234 associated',
-  },
-  {
-    event_id: 'EVT-000125',
-    event_type: 'cross_camera_match',
-    timestamp: '20:35',
-    camera_id: 'CHECK-01',
-    entity: { entity_id: 'G-017', entity_type: 'person' },
-    severity: 'MEDIUM',
-    label: 'Cross-camera vehicle match',
-  },
-  {
-    event_id: 'EVT-000126',
-    event_type: 'person_detected',
-    timestamp: '20:36',
-    camera_id: 'CHECK-01',
-    entity: { entity_id: 'G-017', entity_type: 'person' },
-    severity: 'MEDIUM',
-    label: 'Person G-017 re-identified',
-  },
-];
+export const SCENARIO_EVENTS = [];
 
 export const SEVERITY_COLOR = {
-  HIGH: 'var(--signal-red)',
-  MEDIUM: 'var(--signal-blue)',
-  LOW: 'var(--signal-teal)',
+  CRITICAL: '#ff2244',
+  HIGH:     '#ff6633',
+  MEDIUM:   '#ffaa00',
+  LOW:      '#34d9b4',
 };
+

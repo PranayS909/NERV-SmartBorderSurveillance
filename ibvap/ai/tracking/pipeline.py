@@ -6,7 +6,7 @@ import time
 
 import numpy as np
 
-from src.association.person_vehicle import PersonVehicleAssociator
+from ai.tracking.association.person_vehicle import PersonVehicleAssociator
 from ibvap.configs.config import TrackingConfig, load_config
 from ibvap.ai.detection import DummyDetector, build_detector
 from ibvap.ai.tracking.events.publisher import EventPublisher

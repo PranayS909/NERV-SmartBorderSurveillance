@@ -1,5 +1,5 @@
-from ibvap.configs.config import TrackingConfig
-from ibvap.ai.tracking.events.publisher import EventPublisher
+from configs.config import TrackingConfig
+from ai.tracking.events.publisher import EventPublisher
 
 
 def test_log_only_backend_drains_queue(tmp_path):
@@ -24,7 +24,7 @@ def test_failed_http_keeps_queue(tmp_path, monkeypatch):
         retry_backoff_sec=0.0,
         backend_timeout_sec=0.2,
     )
-    monkeypatch.setattr("src.events.publisher.time.sleep", lambda *_: None)
+    monkeypatch.setattr("ai.tracking.events.publisher.time.sleep", lambda *_: None)
     pub = EventPublisher(cfg)
     pub.emit(
         event_type="vehicle_person_association",

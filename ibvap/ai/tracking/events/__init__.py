@@ -1,6 +1,6 @@
-from src.events.payload import ALLOWED_EVENT_TYPES, ALLOWED_SEVERITIES, build_event_payload
-from ibvap.ai.tracking.events.publisher import EventPublisher, MockBackendReceiver
-from src.events.severity import determine_severity
+from ai.tracking.events.payload import ALLOWED_EVENT_TYPES, ALLOWED_SEVERITIES, build_event_payload
+from ai.tracking.events.publisher import EventPublisher, MockBackendReceiver
+from ai.tracking.events.severity import determine_severity
 
 __all__ = [
     "ALLOWED_EVENT_TYPES",
@@ -10,4 +10,3 @@ __all__ = [
     "build_event_payload",
     "determine_severity",
 ]
-

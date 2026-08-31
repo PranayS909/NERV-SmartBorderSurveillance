@@ -13,8 +13,30 @@ import { CAMERAS }  from './data/scenario';
 import { useEventStream } from './hooks/useEventStream';
 import './App.css';
 
+const API_BASE = import.meta.env.VITE_API_BASE || 'http://localhost:8000';
+
+// Build MJPEG stream URL for a camera
+function streamUrl(camera_id) {
+  return `${API_BASE}/api/v1/cameras/${camera_id}/stream`;
+}
+
+// Build snapshot URL for thumbnail refresh
+function snapshotUrl(camera_id) {
+  return `${API_BASE}/api/v1/cameras/${camera_id}/snapshot`;
+}
+
+
 export default function App() {
-  const { events, cameraStatus } = useEventStream();
+  const {
+    events,
+    cameras,
+    alerts,
+    cameraStatus,
+    videoMode,
+    setVideoMode,
+    wsConnected,
+  } = useEventStream();
+
   const [activeView, setActiveView] = useState('dashboard'); // 'dashboard' | 'alerts' | 'tracks'
   const [selectedAlert, setSelectedAlert] = useState(null);
   const [selectedTrack, setSelectedTrack] = useState(null);
@@ -23,24 +45,22 @@ export default function App() {
   const [manualCamId, setManualCamId] = useState(null);
   const [isManualOverride, setIsManualOverride] = useState(false);
 
+  // Use live cameras if loaded, else fall back to static seed data
+  const allCameras = cameras.length > 0 ? cameras : CAMERAS;
+
   // Determine top priority / latest anomaly camera automatically (Zoom/Meet active-speaker style)
   const autoCamId = useMemo(() => {
-    if (!events || events.length === 0) return 'BOP-01';
-    
-    // 1. Look for highest priority active event (HIGH > MEDIUM > LOW)
-    const highEvent = events.find((ev) => ev.severity === 'HIGH');
+    if (!events || events.length === 0) return allCameras[0]?.camera_id || 'CAM-001';
+    const highEvent = events.find((ev) => ev.severity === 'HIGH' || ev.severity === 'CRITICAL');
     if (highEvent?.camera_id) return highEvent.camera_id;
-
     const medEvent = events.find((ev) => ev.severity === 'MEDIUM');
     if (medEvent?.camera_id) return medEvent.camera_id;
-
-    // 2. Default to newest event's camera or BOP-01
-    return events[0]?.camera_id || 'BOP-01';
-  }, [events]);
+    return events[0]?.camera_id || allCameras[0]?.camera_id || 'CAM-001';
+  }, [events, allCameras]);
 
   // Selected camera feed for the main display
   const activeCamId = isManualOverride && manualCamId ? manualCamId : autoCamId;
-  const activeCamera = CAMERAS.find((c) => c.camera_id === activeCamId) || CAMERAS[0];
+  const activeCamera = allCameras.find((c) => c.camera_id === activeCamId) || allCameras[0];
 
   const handleSelectIndividualAlert = (ev) => {
     const formatted = {
@@ -48,25 +68,25 @@ export default function App() {
       event_type: ev.event_type || 'intrusion',
       type_label: ev.label || ev.event_type?.replace(/_/g, ' '),
       severity: ev.severity || 'HIGH',
-      timestamp: `2026-08-27 ${ev.timestamp || '20:35'}`,
+      timestamp: ev.timestamp || new Date().toISOString(),
       time_relative: 'Just now',
-      camera_id: ev.camera_id || 'BOP-01',
-      camera_name: ev.camera_id === 'BOP-01' ? 'Border outpost camera 01' : 'Checkpost camera 01',
-      global_id: ev.entity?.entity_id || 'G-017',
-      description: `${ev.label || 'Security alert'} detected on sensor feed ${ev.camera_id || 'BOP-01'}`,
-      status: 'NEW',
-      confidence: '98.1%',
-      zone: ev.zone?.zone_name || 'ZONE-01 (Restricted Perimeter)',
-      location: ev.camera_id || 'Sector Alpha',
-      coordinates: { lat: 28.6139, lng: 77.209 },
+      camera_id: ev.camera_id || 'CAM-001',
+      camera_name: allCameras.find(c => c.camera_id === ev.camera_id)?.name || ev.camera_id,
+      global_id: ev.entity_id || 'G-017',
+      description: `${ev.event_type?.replace(/_/g, ' ') || 'Security alert'} detected on ${ev.camera_id}`,
+      status: ev.status || 'NEW',
+      confidence: ev.confidence ? `${(ev.confidence * 100).toFixed(1)}%` : 'N/A',
+      zone: ev.zone_id || 'ZONE-01',
+      location: allCameras.find(c => c.camera_id === ev.camera_id)?.location || ev.camera_id,
+      coordinates: { lat: 28.6139, lng: 77.2090 },
       entity: {
-        type: ev.entity?.entity_type || 'Person',
-        id: ev.entity?.entity_id || 'G-017',
-        estimated_speed: '2.1 m/s',
-        reid_score: '98.1%'
+        type: ev.entity_type || 'Person',
+        id: ev.entity_id || 'G-017',
+        estimated_speed: '—',
+        reid_score: ev.confidence ? `${(ev.confidence * 100).toFixed(1)}%` : '—',
       },
       audit_trail: [
-        { time: ev.timestamp || '20:35', note: 'Real-time alert triggered by Surveillance System' }
+        { time: ev.timestamp || new Date().toISOString(), note: 'Real-time alert from IBVAP AI Engine' },
       ]
     };
     setSelectedAlert(formatted);
@@ -93,15 +113,50 @@ export default function App() {
     <div className="dashboard">
       {/* ── Top Status Bar ── */}
       <StatusBar
-        cameraCount={CAMERAS.length}
+        cameraCount={allCameras.length}
         activeView={activeView}
         onNavigate={(view) => setActiveView(view)}
       />
 
+      {/* ── Video Mode Toggle Bar ── */}
+      <div style={{
+        display: 'flex', alignItems: 'center', gap: '12px',
+        padding: '6px 20px', background: 'rgba(10,14,20,0.7)',
+        borderBottom: '1px solid rgba(52,217,180,0.15)',
+        fontSize: '0.75rem', color: '#8899aa'
+      }}>
+        <span>VIDEO SOURCE:</span>
+        <button
+          onClick={() => setVideoMode('SAMPLE')}
+          style={{
+            padding: '3px 12px', borderRadius: '4px', cursor: 'pointer', border: 'none',
+            background: videoMode === 'SAMPLE' ? '#34d9b4' : 'rgba(52,217,180,0.1)',
+            color: videoMode === 'SAMPLE' ? '#0a0e14' : '#34d9b4',
+            fontWeight: videoMode === 'SAMPLE' ? 700 : 400
+          }}
+        >
+          SAMPLE FOOTAGE
+        </button>
+        <button
+          onClick={() => setVideoMode('LIVE_PHONE')}
+          style={{
+            padding: '3px 12px', borderRadius: '4px', cursor: 'pointer', border: 'none',
+            background: videoMode === 'LIVE_PHONE' ? '#34d9b4' : 'rgba(52,217,180,0.1)',
+            color: videoMode === 'LIVE_PHONE' ? '#0a0e14' : '#34d9b4',
+            fontWeight: videoMode === 'LIVE_PHONE' ? 700 : 400
+          }}
+        >
+          LIVE SMARTPHONE
+        </button>
+        <span style={{ marginLeft: 'auto', color: wsConnected ? '#34d9b4' : '#ff4455' }}>
+          {wsConnected ? '● WS CONNECTED' : '○ WS RECONNECTING...'}
+        </span>
+      </div>
+
       {/* ── Main Dashboard Body ── */}
       <main className="dashboard__body">
 
-        {/* ── LEFT COLUMN: Main Dynamic CCTV Feed + 2 Camera Tiles ── */}
+        {/* ── LEFT COLUMN: Main Dynamic CCTV Feed + Camera Tiles ── */}
         <div className="dashboard__left-col">
           {/* Main Large CCTV Feed */}
           <section className="dashboard__main-cctv-wrap">
@@ -110,18 +165,21 @@ export default function App() {
               latestEvent={cameraStatus[activeCamId]}
               isAutoSwitch={!isManualOverride}
               onToggleAutoSwitch={() => setIsManualOverride((prev) => !prev)}
+              streamUrl={streamUrl(activeCamId)}
             />
           </section>
 
-          {/* Exactly 2 Camera Tiles Below */}
+          {/* Camera Tiles Grid */}
           <section className="dashboard__tiles-wrap">
             <div className="dashboard__tiles-grid">
-              {CAMERAS.map((cam) => (
+              {allCameras.map((cam) => (
                 <CameraTile
                   key={cam.camera_id}
                   camera={cam}
                   latestEvent={cameraStatus[cam.camera_id]}
                   isActive={cam.camera_id === activeCamId}
+                  streamUrl={cam.camera_id === activeCamId ? streamUrl(cam.camera_id) : null}
+                  snapshotUrl={snapshotUrl(cam.camera_id)}
                   onClick={() => {
                     setManualCamId(cam.camera_id);
                     setIsManualOverride(true);
@@ -132,7 +190,7 @@ export default function App() {
           </section>
         </div>
 
-        {/* ── RIGHT COLUMN: Active Alerts + Repositioned Tactical Zone Map ── */}
+        {/* ── RIGHT COLUMN: Active Alerts + Tactical Zone Map ── */}
         <div className="dashboard__right-col">
           {/* Top: Active Alerts Panel */}
           <section className="dashboard__alerts-wrap">
@@ -143,14 +201,12 @@ export default function App() {
             />
           </section>
 
-          {/* Bottom: Repositioned Tactical Zone Map (Exactly the same) */}
+          {/* Bottom: Tactical Zone Map */}
           <section className="dashboard__map-wrap">
             <TacticalMap cameraStatus={cameraStatus} />
           </section>
         </div>
       </main>
-
-
 
       {/* Individual Alert Details Modal */}
       {selectedAlert && (

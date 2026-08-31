@@ -1,27 +1,21 @@
 from fastapi import APIRouter, WebSocket, WebSocketDisconnect
 
-router = APIRouter()
+from backend.websocket_manager import manager
 
-connected_clients = []
+router = APIRouter()
 
 
 @router.websocket("/ws/events")
 async def websocket_events(websocket: WebSocket):
-    await websocket.accept()
 
-    connected_clients.append(websocket)
+    await manager.connect(websocket)
 
     print("WebSocket client connected")
 
     try:
         while True:
-            # Keep connection alive and listen for messages
-            data = await websocket.receive_text()
-
-            print("Received:", data)
+            await websocket.receive_text()
 
     except WebSocketDisconnect:
+        manager.disconnect(websocket)
         print("WebSocket client disconnected")
-
-        if websocket in connected_clients:
-            connected_clients.remove(websocket)

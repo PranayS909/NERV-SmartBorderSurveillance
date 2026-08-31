@@ -3,13 +3,13 @@ from __future__ import annotations
 import numpy as np
 import pytest
 
-from ibvap.configs.config import CameraTopology, TrackingConfig, TransitWindow
-from ibvap.ai.tracking.events.publisher import EventPublisher, MockBackendReceiver
-from ibvap.ai.tracking.handoff.gallery import CrossCameraHandoff, InMemoryGalleryStore, RedisGalleryStore
-from ibvap.ai.tracking.models import Detection, ExitRecord, Track
-from src.pipeline import _apply_gallery_match
-from ibvap.ai.tracking.reid.embedder import HistogramEmbedder
-from ibvap.ai.tracking.hybrid import HybridTracker
+from configs.config import CameraTopology, TrackingConfig, TransitWindow
+from ai.tracking.events.publisher import EventPublisher, MockBackendReceiver
+from ai.tracking.handoff.gallery import CrossCameraHandoff, InMemoryGalleryStore, RedisGalleryStore
+from ai.tracking.models import Detection, ExitRecord, Track
+from ai.tracking.pipeline import _apply_gallery_match
+from ai.tracking.reid.embedder import HistogramEmbedder
+from ai.tracking.hybrid import HybridTracker
 
 
 def _unit_vec(seed: int) -> np.ndarray:

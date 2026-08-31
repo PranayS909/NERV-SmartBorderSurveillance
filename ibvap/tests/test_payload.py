@@ -1,7 +1,7 @@
 import pytest
 
-from src.events.payload import build_event_payload, make_idempotency_key
-from src.events.severity import determine_severity
+from ai.tracking.events.payload import build_event_payload, make_idempotency_key
+from ai.tracking.events.severity import determine_severity
 
 
 def test_payload_validation_and_rounding():

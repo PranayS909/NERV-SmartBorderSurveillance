@@ -8,9 +8,9 @@ import urllib.request
 from collections import deque
 from pathlib import Path
 
-from ibvap.configs.config import TrackingConfig
-from src.events.payload import build_event_payload
-from src.events.severity import determine_severity
+from configs.config import TrackingConfig
+from ai.tracking.events.payload import build_event_payload
+from ai.tracking.events.severity import determine_severity
 
 logger = logging.getLogger(__name__)
 

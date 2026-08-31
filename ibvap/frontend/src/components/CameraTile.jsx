@@ -1,16 +1,23 @@
+import { useState, useEffect } from 'react';
 import './CameraTile.css';
 import { SEVERITY_COLOR } from '../data/scenario';
 
-const CAM_NAMES = {
-  'BOP-01':   'BOP-01 (Border Out Post)',
-  'CHECK-01': 'CHECK-01 (Check Post)',
-};
-
-export default function CameraTile({ camera, latestEvent, isActive, onClick, streamUrl }) {
-  const cameraID = camera?.camera_id || 'BOP-01';
-  const displayName = CAM_NAMES[cameraID] || cameraID;
+export default function CameraTile({ camera, latestEvent, isActive, onClick, streamUrl, snapshotUrl }) {
+  const cameraID = camera?.camera_id || 'CAM-001';
+  const displayName = camera?.name || cameraID;
   const severity = latestEvent?.severity || null;
   const accentColor = severity ? (SEVERITY_COLOR[severity] || 'var(--signal-teal)') : 'var(--signal-teal)';
+
+  // Lightweight snapshot polling every 2s for inactive thumbnails (prevents browser stream starvation)
+  const [snapSrc, setSnapSrc] = useState(snapshotUrl ? `${snapshotUrl}?_t=${Date.now()}` : null);
+
+  useEffect(() => {
+    if (!snapshotUrl || streamUrl) return;
+    const interval = setInterval(() => {
+      setSnapSrc(`${snapshotUrl}?_t=${Date.now()}`);
+    }, 2000);
+    return () => clearInterval(interval);
+  }, [snapshotUrl, streamUrl]);
 
   return (
     <div
@@ -40,17 +47,24 @@ export default function CameraTile({ camera, latestEvent, isActive, onClick, str
       {/* ── Feed Preview ── */}
       <div className="camera-tile__feed">
         {streamUrl ? (
-          <img src={streamUrl} alt={`Thumbnail feed for ${cameraID}`} className="camera-tile__thumb-img" />
+          <img src={streamUrl} alt={`Live feed for ${cameraID}`} className="camera-tile__thumb-img" />
+        ) : snapSrc ? (
+          <div style={{ position: 'relative', width: '100%', height: '100%' }}>
+            <img src={snapSrc} alt={`Snapshot for ${cameraID}`} className="camera-tile__thumb-img" />
+            <div className="camera-tile__hover-overlay">
+              <span>CLICK TO VIEW ON MAIN</span>
+            </div>
+          </div>
         ) : (
           <div className="camera-tile__placeholder">
             {/* Simulated Bounding Box Preview */}
             <div
               className="camera-tile__mini-bbox"
               style={{
-                top: cameraID === 'BOP-01' ? '25%' : '35%',
-                left: cameraID === 'BOP-01' ? '20%' : '55%',
-                width: '28%',
-                height: '50%',
+                top: '30%',
+                left: '30%',
+                width: '35%',
+                height: '45%',
               }}
             >
               <span className="camera-tile__mini-label">{latestEvent?.entity?.entity_id || 'G-017'}</span>
@@ -67,6 +81,7 @@ export default function CameraTile({ camera, latestEvent, isActive, onClick, str
         )}
         <div className="camera-tile__scanline" />
       </div>
+
 
       {/* ── Tile Footer ── */}
       <div className="camera-tile__foot">

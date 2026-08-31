@@ -3,11 +3,6 @@ import { Zap, Target, Flame, Volume2, Maximize2, Grid } from 'lucide-react';
 import './MainCCTVFeed.css';
 import { SEVERITY_COLOR } from '../data/scenario';
 
-const CAM_NAMES = {
-  'BOP-01':   'Border Outpost Camera 01',
-  'CHECK-01': 'Checkpost Camera 01',
-};
-
 export default function MainCCTVFeed({
   camera,
   latestEvent,
@@ -32,8 +27,8 @@ export default function MainCCTVFeed({
     return () => clearInterval(interval);
   }, []);
 
-  const cameraID = camera?.camera_id || 'BOP-01';
-  const cameraName = CAM_NAMES[cameraID] || camera?.name || cameraID;
+  const cameraID = camera?.camera_id || 'CAM-001';
+  const cameraName = camera?.name || cameraID;
   const severity = latestEvent?.severity || null;
   const accentColor = severity ? (SEVERITY_COLOR[severity] || 'var(--signal-teal)') : 'var(--signal-teal)';
 

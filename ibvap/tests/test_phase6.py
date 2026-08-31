@@ -4,10 +4,10 @@ import json
 import numpy as np
 import pytest
 
-from ibvap.configs.config import load_config
-from src.events.payload import build_event_payload
-from ibvap.ai.tracking.events.publisher import EventPublisher, MockBackendReceiver
-from src.pipeline import run_loop, build_parser, main as pipeline_main
+from configs.config import load_config
+from ai.tracking.events.payload import build_event_payload
+from ai.tracking.events.publisher import EventPublisher, MockBackendReceiver
+from ai.tracking.pipeline import run_loop, build_parser, main as pipeline_main
 
 
 def test_phase6_json_payload_schema_compliance(tmp_path):

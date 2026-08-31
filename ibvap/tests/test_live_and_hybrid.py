@@ -3,12 +3,12 @@ from __future__ import annotations
 import numpy as np
 import pytest
 
-from ibvap.configs.config import TrackingConfig
-from ibvap.ai.detection import DummyDetector, YoloDetector, build_detector
-from ibvap.ai.tracking.models import Detection
-from src.pipeline import SyntheticVideoCapture, _open_source
-from ibvap.ai.tracking.reid.embedder import HistogramEmbedder
-from ibvap.ai.tracking.hybrid import HybridTracker, MockIdentityBinder
+from configs.config import TrackingConfig
+from ai.detection import DummyDetector, YoloDetector, build_detector
+from ai.tracking.models import Detection
+from ai.tracking.pipeline import SyntheticVideoCapture, _open_source
+from ai.tracking.reid.embedder import HistogramEmbedder
+from ai.tracking.hybrid import HybridTracker, MockIdentityBinder
 
 
 def test_synthetic_video_capture():

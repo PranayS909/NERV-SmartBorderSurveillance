@@ -1,7 +1,7 @@
-from src.association.person_vehicle import evaluate_entry_event
-from ibvap.configs.config import TrackingConfig
-from ibvap.ai.tracking.geometry import bbox_overlap_ratio
-from ibvap.ai.tracking.models import Track
+from ai.tracking.association.person_vehicle import evaluate_entry_event
+from configs.config import TrackingConfig
+from ai.tracking.geometry import bbox_overlap_ratio
+from ai.tracking.models import Track
 
 
 def test_no_overlap():

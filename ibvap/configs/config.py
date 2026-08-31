@@ -6,9 +6,9 @@ from typing import Any
 
 import yaml
 
-ROOT = Path(__file__).resolve().parents[2]
-DEFAULT_CONFIG_PATH = ROOT / "ibvap" / "configs" / "default.yaml"
-DEFAULT_CAMERAS_PATH = ROOT / "ibvap" / "configs" / "cameras.yaml"
+ROOT = Path(__file__).resolve().parent.parent
+DEFAULT_CONFIG_PATH = ROOT / "configs" / "default.yaml" if (ROOT / "configs" / "default.yaml").exists() else ROOT / "ibvap" / "configs" / "default.yaml"
+DEFAULT_CAMERAS_PATH = ROOT / "configs" / "cameras.yaml" if (ROOT / "configs" / "cameras.yaml").exists() else ROOT / "ibvap" / "configs" / "cameras.yaml"
 
 
 @dataclass(slots=True)

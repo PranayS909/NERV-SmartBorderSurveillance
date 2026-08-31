@@ -1,10 +1,10 @@
 from __future__ import annotations
 
-from src.association.person_vehicle import PersonVehicleAssociator
-from ibvap.configs.config import TrackingConfig
-from ibvap.ai.tracking.events.publisher import EventPublisher
-from src.events.severity import determine_severity
-from ibvap.ai.tracking.models import Track
+from ai.tracking.association.person_vehicle import PersonVehicleAssociator
+from configs.config import TrackingConfig
+from ai.tracking.events.publisher import EventPublisher
+from ai.tracking.events.severity import determine_severity
+from ai.tracking.models import Track
 
 
 def test_phase4_person_vehicle_association_confirmed_entry():

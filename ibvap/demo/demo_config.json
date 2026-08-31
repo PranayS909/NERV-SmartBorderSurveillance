@@ -1,0 +1,37 @@
+{
+  "CAM-001": {
+    "name": "BOP Main Gate",
+    "description": "Primary entry checkpoint - intrusion detection",
+    "sample_video": "D:\\Engineering_Projects\\NERV-SmartBorderSurveillance\\sample\\4p-c0.avi",
+    "sample_scenario": "intrusion",
+    "phone_stream_url": "http://192.168.1.3:4747"
+  },
+  "CAM-002": {
+    "name": "Checkpost Alpha",
+    "description": "Vehicle inspection and ANPR",
+    "sample_video": "D:\\Engineering_Projects\\NERV-SmartBorderSurveillance\\sample\\4p-c1.avi",
+    "sample_scenario": "anpr",
+    "phone_stream_url": "http://192.168.1.4:4747"
+  },
+  "CAM-003": {
+    "name": "Perimeter Fence North",
+    "description": "Suspicious object / armed threat detection",
+    "sample_video": "demo/videos/suspicious_object.mp4",
+    "sample_scenario": "suspicious_object",
+    "phone_stream_url": ""
+  },
+  "CAM-004": {
+    "name": "Night Surveillance Post",
+    "description": "Low-light / night movement detection",
+    "sample_video": "demo/videos/night.mp4",
+    "sample_scenario": "night",
+    "phone_stream_url": ""
+  },
+  "CAM-005": {
+    "name": "Secondary Transit Gate",
+    "description": "Cross-camera person-vehicle tracking",
+    "sample_video": "demo/videos/cross_camera.mp4",
+    "sample_scenario": "cross_camera",
+    "phone_stream_url": ""
+  }
+}
