@@ -123,4 +123,4 @@ This project is licensed under the MIT License.
 
 - [InsightFace](https://github.com/deepinsight/insightface) - Face recognition models
 - [Ultralytics YOLOv8](https://github.com/ultralytics/ultralytics) - Object detection
-- [TransReID](https://github.com/damo-cv/TransReID) - Person re-identifications
+- [TransReID](https://github.com/damo-cv/TransReID) - Person re-identification
