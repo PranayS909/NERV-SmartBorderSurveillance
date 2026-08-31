@@ -5,8 +5,10 @@ __pycache__/
 .coverage
 htmlcov/
 models/*.onnx
+!models/transreid_vit_base.onnx
 models/*.pth
 models/*.pt
+!models/yolov8n.pt
 models/*.bin
 models/cache/
 models/insightface/
@@ -25,3 +27,25 @@ venv/
 .env
 __pycache__/
 *.pyc
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+node_modules
+dist
+dist-ssr
+*.local
+# Editor directories and files
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
